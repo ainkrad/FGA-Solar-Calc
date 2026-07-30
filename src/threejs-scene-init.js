@@ -1,7 +1,9 @@
-import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+// Remove top-level const THREE / GLTFLoader calls to avoid execution order crashes
 
 export const initScenePipelineModule = () => {
+  // Grab window references safely inside the closure
+  const THREE = window.THREE
+  
   let takeSnapshot = false
   let snapshotCanvas = null
   let previewImg = null
@@ -26,9 +28,11 @@ export const initScenePipelineModule = () => {
 
   // Pinch-to-scale state
   let initialPinchDistance = 0
-  let initialModelScale = new THREE.Vector3()
+  let initialModelScale = THREE ? new THREE.Vector3() : null
 
-  const gltfLoader = new GLTFLoader()
+  // Instantiate GLTFLoader safely
+  const GLTFLoaderClass = THREE?.GLTFLoader || window.GLTFLoader
+  const gltfLoader = GLTFLoaderClass ? new GLTFLoaderClass() : null
 
   const modelsList = [
     { name: 'Chair', url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/SheenChair/glTF-Binary/SheenChair.glb', scale: 1 },
@@ -50,7 +54,7 @@ export const initScenePipelineModule = () => {
     if (currentModel) {
       currentModel.position.copy(position)
       if (rotation) currentModel.quaternion.copy(rotation)
-    } else {
+    } else if (gltfLoader) {
       gltfLoader.load(
         activeModelData.url,
         (gltf) => {
@@ -301,27 +305,24 @@ export const initScenePipelineModule = () => {
     activeModelData = modelsList[0]
   }
 
-  // --- Touch Gesture Listeners (Placement, Forward/Backward Drag, Pinch Scale) ---
+  // --- Touch Gesture Listeners ---
   const setupTouchListeners = (canvas) => {
     canvas.addEventListener('touchstart', (e) => {
       if (e.target !== canvas) return
 
-      // --- PINCH INITIALIZATION (2 fingers) ---
-      if (e.touches.length === 2 && currentModel) {
+      if (e.touches.length === 2 && currentModel && initialModelScale) {
         clearTimeout(pressHoldTimer)
         initialPinchDistance = getTouchDistance(e.touches)
         initialModelScale.copy(currentModel.scale)
         return
       }
 
-      // --- SINGLE TOUCH INITIALIZATION (1 finger) ---
       if (e.touches.length === 1) {
         const touch = e.touches[0]
         touchStartPos = { x: touch.clientX, y: touch.clientY }
         lastTouchTime = Date.now()
         isDragging = false
 
-        // Press & Hold threshold timer (300ms)
         pressHoldTimer = setTimeout(() => {
           if (currentModel) {
             isTouchingModel = true
@@ -334,28 +335,6 @@ export const initScenePipelineModule = () => {
       if (e.target !== canvas) return
       e.preventDefault()
 
-  /* =========================================================================
-    * DISABLED: PINCH-TO-SCALE (2 fingers)
-    * Uncomment this section if you want to enable pinch scaling in the future.
-    * =========================================================================
-    if (e.touches.length === 2 && currentModel && initialPinchDistance > 0) {
-      const currentDistance = getTouchDistance(e.touches)
-      const scaleFactor = currentDistance / initialPinchDistance
-
-      const newScaleX = initialModelScale.x * scaleFactor
-      const newScaleY = initialModelScale.y * scaleFactor
-      const newScaleZ = initialModelScale.z * scaleFactor
-
-      const minScale = 0.1
-      const maxScale = 5.0
-      if (newScaleX >= minScale && newScaleX <= maxScale) {
-        currentModel.scale.set(newScaleX, newScaleY, newScaleZ)
-      }
-      return
-    }
-    ========================================================================= */
-
-      // --- 2. SINGLE TOUCH DRAG & ROTATE (1 finger) ---
       if (e.touches.length === 1) {
         const touch = e.touches[0]
         const deltaX = touch.clientX - touchStartPos.x
@@ -365,26 +344,19 @@ export const initScenePipelineModule = () => {
           isDragging = true
         }
 
-        // If in Press-and-Hold state with active model:
         if (isTouchingModel && currentModel) {
-          // Horizontal Swipe: Rotate object around Y axis
           currentModel.rotation.y += deltaX * 0.01
 
-          // Vertical Swipe: Move model FORWARD / BACKWARD along camera orientation
           if (activeCamera) {
             const forwardVector = new THREE.Vector3()
             activeCamera.getWorldDirection(forwardVector)
             
-            // Keep movement strictly horizontal along the ground plane
             forwardVector.y = 0 
             forwardVector.normalize()
 
-            // Drag UP (negative deltaY) -> Move away from camera
-            // Drag DOWN (positive deltaY) -> Move toward camera
             const moveSpeed = 0.005
             currentModel.position.addScaledVector(forwardVector, -deltaY * moveSpeed)
           } else {
-            // Fallback to local Z axis if camera is unassigned
             currentModel.position.z += deltaY * 0.005
           }
 
@@ -400,7 +372,6 @@ export const initScenePipelineModule = () => {
         initialPinchDistance = 0
       }
 
-      // TAP ACTION: Scan mode OFF + Not dragging + Quick tap
       if (!isScanningActive && !isDragging && (Date.now() - lastTouchTime < 300) && e.touches.length === 0) {
         if (lockedSurfacePoint) {
           placeOrUpdateModel(lockedSurfacePoint.position, lockedSurfacePoint.rotation)
@@ -438,11 +409,9 @@ export const initScenePipelineModule = () => {
       setupTouchListeners(canvas)
     },
 
-    // Continuous Frame Update
     onUpdate: () => {
       if (!reticleMesh) return
 
-      // ONLY track and update green reticle when Surface Scanning is ON
       if (isScanningActive && window.XR8 && XR8.XrController) {
         const hits = XR8.XrController.hitTest(0.5, 0.5, ['FEATURE_POINT', 'ESTIMATED_SURFACE'])
 
@@ -455,7 +424,6 @@ export const initScenePipelineModule = () => {
           if (rot) reticleMesh.quaternion.copy(rot)
           reticleMesh.visible = true
 
-          // Save current target position as active locked point
           lockedSurfacePoint = { position: pos, rotation: rot }
         } else {
           reticleMesh.visible = false
