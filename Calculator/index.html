@@ -86,7 +86,7 @@
 
         <!-- Tab 3: Appliance Table -->
         <div class="tab-pane fade" id="table-pane" role="tabpanel">
-          <h5 class="mb-3">Custom Load Audit Table</h5>
+          <h5 class="mb-3">Load Audit Table</h5>
           <div class="table-responsive">
             <table class="table table-dark table-striped align-middle" id="appliance-table">
               <thead>
@@ -128,6 +128,16 @@
                   <td><button type="button" class="btn btn-outline-danger btn-sm remove-row-btn">✕</button></td>
                 </tr>
               </tbody>
+              <!-- Added Footer Row for Totals -->
+              <tfoot class="table-group-divider border-top border-info">
+                <tr class="fw-bold fs-6">
+                  <td colspan="2" class="text-end text-info">Total:</td>
+                  <td class="text-warning"><span id="total-watts">2780</span> W</td>
+                  <td></td>
+                  <td class="text-info"><span id="total-wh">24720</span> Wh</td>
+                  <td></td>
+                </tr>
+              </tfoot>
             </table>
           </div>
           <button type="button" id="add-row-btn" class="btn btn-outline-info btn-sm">+ Add Appliance</button>
@@ -175,7 +185,7 @@
 
       <!-- Action Trigger Button -->
       <button type="button" id="calc-trigger-btn" class="btn btn-primary btn-lg w-100 fw-bold">
-        Estimate Solar Setup →
+        Estimate Solar Setup
       </button>
 
     </div>
@@ -190,26 +200,41 @@
       
       const tbody = document.getElementById('appliance-tbody');
       const addRowBtn = document.getElementById('add-row-btn');
+      const totalWattsEl = document.getElementById('total-watts');
+      const totalWhEl = document.getElementById('total-wh');
 
-      // Function to recalculate subtotal for a specific row
-      function updateRowSubtotal(row) {
-        const qty = parseFloat(row.querySelector('.app-qty')?.value) || 0;
-        const watts = parseFloat(row.querySelector('.app-watts')?.value) || 0;
-        const hours = parseFloat(row.querySelector('.app-hours')?.value) || 0;
-        const subtotal = qty * watts * hours;
-        
-        const subtotalSpan = row.querySelector('.row-subtotal');
-        if (subtotalSpan) {
-          subtotalSpan.innerText = subtotal.toLocaleString();
-        }
+      // Function to calculate and update row subtotal as well as footer totals
+      function updateTableTotals() {
+        let grandTotalWatts = 0;
+        let grandTotalWh = 0;
+
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+          const qty = parseFloat(row.querySelector('.app-qty')?.value) || 0;
+          const watts = parseFloat(row.querySelector('.app-watts')?.value) || 0;
+          const hours = parseFloat(row.querySelector('.app-hours')?.value) || 0;
+
+          const rowSubtotalWh = qty * watts * hours;
+          const rowTotalWatts = qty * watts;
+
+          const subtotalSpan = row.querySelector('.row-subtotal');
+          if (subtotalSpan) {
+            subtotalSpan.innerText = rowSubtotalWh.toLocaleString();
+          }
+
+          grandTotalWatts += rowTotalWatts;
+          grandTotalWh += rowSubtotalWh;
+        });
+
+        if (totalWattsEl) totalWattsEl.innerText = grandTotalWatts.toLocaleString();
+        if (totalWhEl) totalWhEl.innerText = grandTotalWh.toLocaleString();
       }
 
-      // Add live input listener for dynamic subtotal calculations
+      // Add live input listener for dynamic subtotal and footer calculations
       if (tbody) {
         tbody.addEventListener('input', (e) => {
           if (e.target && e.target.classList.contains('form-control')) {
-            const row = e.target.closest('tr');
-            if (row) updateRowSubtotal(row);
+            updateTableTotals();
           }
         });
 
@@ -217,6 +242,7 @@
         tbody.addEventListener('click', (e) => {
           if (e.target && e.target.classList.contains('remove-row-btn')) {
             e.target.closest('tr').remove();
+            updateTableTotals();
           }
         });
       }
@@ -234,8 +260,12 @@
             <td><button type="button" class="btn btn-outline-danger btn-sm remove-row-btn">✕</button></td>
           `;
           tbody.appendChild(newRow);
+          updateTableTotals();
         };
       }
+
+      // Initial calculation run to ensure numbers are in sync on page load
+      updateTableTotals();
 
       // Calculate payload and pass to localStorage
       function calculateAndRedirect() {
