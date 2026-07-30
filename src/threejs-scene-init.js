@@ -401,6 +401,9 @@ export const initScenePipelineModule = () => {
     onStart: ({canvas}) => {
       const {scene, camera} = XR8.Threejs.xrScene()
 
+      // Prevents Android WebGL renderer from painting a black buffer
+      // if (renderer) renderer.setClearColor(0x000000, 0)
+
       snapshotCanvas = canvas
       createUI()
       initXrScene({scene, camera})
