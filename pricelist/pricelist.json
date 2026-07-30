@@ -1,0 +1,18 @@
+[
+  { "id": 1, "category": "Solar Panels", "name": "Bosca Monocrystalline PV", "model": "BS-600W", "spec": "600W", "price": 7200 },
+  { "id": 2, "category": "Solar Panels", "name": "Trina Solar Vertex S+", "model": "TSM-NEG9R.28", "spec": "550W", "price": 6800 },
+  { "id": 3, "category": "Solar Panels", "name": "Jinko Solar Tiger Pro", "model": "JKM550M-72HL4-V", "spec": "550W", "price": 6950 },
+  { "id": 4, "category": "Solar Panels", "name": "Canadian Solar HiKu6", "model": "CS6W-600MS", "spec": "600W", "price": 7400 },
+  { "id": 5, "category": "Batteries", "name": "Felicity ESS Powerwall", "model": "LPBA48300", "spec": "16.1 kWh", "price": 85000 },
+  { "id": 6, "category": "Batteries", "name": "Deye Rack Mount Pack", "model": "SE-G5.1 Pro-B", "spec": "5.12 kWh", "price": 32000 },
+  { "id": 7, "category": "Batteries", "name": "GobelPower Server Rack", "model": "GP-SR1-PC100", "spec": "5.12 kWh", "price": 31000 },
+  { "id": 8, "category": "Batteries", "name": "Orient Power DIY Box", "model": "51.2V 315Ah Mason", "spec": "16.1 kWh", "price": 78000 },
+  { "id": 9, "category": "Inverters", "name": "Sungrow Hybrid Inverter", "model": "SH6.0RS", "spec": "6 kW", "price": 48000 },
+  { "id": 10, "category": "Inverters", "name": "Deye Single Phase Hybrid", "model": "SUN-5K-SG04LP1-EU", "spec": "5 kW", "price": 45000 },
+  { "id": 11, "category": "Inverters", "name": "Deye Heavy Duty Hybrid", "model": "SUN-8K-SG05LP1-EU", "spec": "8 kW", "price": 68000 },
+  { "id": 12, "category": "Inverters", "name": "SRNE Hybrid Inverter", "model": "ASF4850U80-H", "spec": "5 kW", "price": 38000 },
+  { "id": 13, "category": "Inverters", "name": "Growatt Hybrid Inverter", "model": "SPH6000TL BL-UP", "spec": "6 kW", "price": 46000 },
+  { "id": 14, "category": "Accessories", "name": "Solar Twin-Core Cable", "model": "PV1-F 6mm²", "spec": "Per Meter", "price": 95 },
+  { "id": 15, "category": "Accessories", "name": "TOMZN DC Breaker 2P", "model": "TOB1-63", "spec": "Universal", "price": 450 },
+  { "id": 16, "category": "Accessories", "name": "Aluminum Mounting Rail", "model": "4.2m Anodized", "spec": "Universal", "price": 1200 }
+]

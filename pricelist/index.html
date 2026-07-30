@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solar Component Price List</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="../index.html" class="btn btn-outline-secondary btn-sm">
+        ← Back to Main Hub
+      </a>
+      <a href="../calculator/index.html" class="btn btn-outline-info btn-sm">
+        ⚡ Solar Load Calculator
+      </a>
+    </div>
+    <h1 class="h2 fw-bold">🏷️ Solar Component Catalog</h1>
+    <p class="text-secondary">Select a component category below to filter by power rating and check current market prices.</p>
+  </div>
+
+  <!-- Main Category Cards Grid -->
+  <div class="container my-5">
+    <div class="row g-4">
+      
+      <!-- 1. SOLAR PANELS CARD -->
+      <div class="col-md-6 col-lg-3">
+        <div class="category-card" onclick="openSpecSelector('Solar Panels')">
+          <div class="card-icon">☀️</div>
+          <h4 class="fw-bold text-light">Solar Panels</h4>
+          <p class="text-secondary small mb-0">Monocrystalline & N-Type PV Modules</p>
+          <span class="badge bg-primary mt-3 px-3 py-2">Filter by Wattage</span>
+        </div>
+      </div>
+
+      <!-- 2. BATTERY BANK CARD -->
+      <div class="col-md-6 col-lg-3">
+        <div class="category-card" onclick="openSpecSelector('Batteries')">
+          <div class="card-icon">🔋</div>
+          <h4 class="fw-bold text-light">Battery Storage</h4>
+          <p class="text-secondary small mb-0">51.2V LiFePO4 Rack & Wall Packs</p>
+          <span class="badge bg-success mt-3 px-3 py-2">Filter by Capacity</span>
+        </div>
+      </div>
+
+      <!-- 3. INVERTER CARD -->
+      <div class="col-md-6 col-lg-3">
+        <div class="category-card" onclick="openSpecSelector('Inverters')">
+          <div class="card-icon">⚡</div>
+          <h4 class="fw-bold text-light">Hybrid Inverters</h4>
+          <p class="text-secondary small mb-0">Pure Sine Wave & Built-in MPPTs</p>
+          <span class="badge bg-warning text-dark mt-3 px-3 py-2">Filter by Output kW</span>
+        </div>
+      </div>
+
+      <!-- 4. ACCESSORIES CARD -->
+      <div class="col-md-6 col-lg-3">
+        <div class="category-card" onclick="openSpecSelector('Accessories')">
+          <div class="card-icon">🛠️</div>
+          <h4 class="fw-bold text-light">Protection & Wiring</h4>
+          <p class="text-secondary small mb-0">DC Breakers, Cables & Rails</p>
+          <span class="badge bg-secondary mt-3 px-3 py-2">View All Hardware</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button id="reset-default-btn" class="btn btn-outline-warning btn-sm">
+        ↺ Reset Default Price List
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 1: RATING SELECTION MODAL -->
+  <div class="modal fade" id="ratingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-light">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title fw-bold" id="rating-modal-title">Select Rating</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <p class="text-secondary mb-4">Choose standard unit size to view matching models:</p>
+          <div id="rating-buttons-container" class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Dynamic rating buttons -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: PRODUCTS LIST MODAL WITH TABLE & FILTER BADGES -->
+  <div class="modal fade" id="productsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content text-light">
+        <div class="modal-header border-secondary align-items-start">
+          <div class="w-100">
+            <h5 class="modal-title fw-bold mb-2" id="products-modal-title">Matching Components</h5>
+            
+            <!-- Quick Rating Filters Strip -->
+            <div class="d-flex flex-wrap align-items-center gap-1" id="filter-badges-container">
+              <!-- Dynamically populated filter pills -->
+            </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          
+          <!-- Search & Add Header -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-8">
+              <input type="text" id="modal-search-input" class="form-control" placeholder="🔍 Search brand, model number, or rating...">
+            </div>
+            <div class="col-md-4 text-end">
+              <button class="btn btn-primary btn-sm w-100 h-100 fw-bold" onclick="openAddProductModal()">
+                + Add New Model
+              </button>
+            </div>
+          </div>
+
+          <!-- Product Table -->
+          <div class="table-responsive">
+            <table class="table table-dark table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Brand / Component</th>
+                  <th>Model No.</th>
+                  <th>Rating</th>
+                  <th style="text-align: right;">Unit Price (₱)</th>
+                  <th style="width: 50px; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody">
+                <!-- Dynamic products rendered here -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: FORM MODAL FOR ADDING NEW PRODUCTS -->
+  <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-light">
+        <div class="modal-header border-secondary">
+          <h5 class="modal-title fw-bold" id="add-product-modal-title">Add New Model</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="add-product-form">
+            <div class="mb-3">
+              <label class="form-label text-secondary small">Brand / Component Name</label>
+              <input type="text" id="add-brand-input" class="form-control" placeholder="e.g. Sungrow Hybrid Inverter" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary small">Model Number</label>
+              <input type="text" id="add-model-input" class="form-control" placeholder="e.g. SH6.0RS" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary small">Spec Rating / Capacity</label>
+              <input type="text" id="add-spec-input" class="form-control" placeholder="e.g. 6 kW, 600W, or 16.1 kWh" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label text-secondary small">Unit Price (₱)</label>
+              <input type="number" id="add-price-input" class="form-control" placeholder="e.g. 48000" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold mt-2">Save to Catalog</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let currentCategory = '';
+    let currentRatingFilter = 'ALL';
+
+    // Fetch seed catalog from external JSON if not in LocalStorage
+    async function getCatalog() {
+      const stored = localStorage.getItem('solar_price_catalog');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+
+      try {
+        const response = await fetch('pricelist.json');
+        if (!response.ok) throw new Error('Failed to load JSON');
+        const defaultCatalog = await response.json();
+        saveCatalog(defaultCatalog);
+        return defaultCatalog;
+      } catch (err) {
+        console.error('Error fetching external catalog:', err);
+        return [];
+      }
+    }
+
+    function saveCatalog(data) {
+      localStorage.setItem('solar_price_catalog', JSON.stringify(data));
+    }
+
+    // Initialize catalog on load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await getCatalog();
+    });
+
+    // Step 1: Open Rating Selector based on chosen Category Card
+    async function openSpecSelector(category) {
+      currentCategory = category;
+      const catalog = await getCatalog();
+      const ratingModalTitle = document.getElementById('rating-modal-title');
+      const ratingContainer = document.getElementById('rating-buttons-container');
+
+      ratingModalTitle.innerText = `${category} — Select Rating`;
+      ratingContainer.innerHTML = '';
+
+      if (category === 'Accessories') {
+        showProductsTable('ALL');
+        return;
+      }
+
+      // Extract unique ratings
+      const availableSpecs = [...new Set(
+        catalog
+          .filter(item => item.category === category)
+          .map(item => item.spec)
+      )];
+
+      const allBtn = document.createElement('button');
+      allBtn.className = 'btn btn-outline-info rating-btn';
+      allBtn.innerText = 'All Ratings';
+      allBtn.onclick = () => showProductsTable('ALL');
+      ratingContainer.appendChild(allBtn);
+
+      availableSpecs.forEach(spec => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-outline-light rating-btn';
+        btn.innerText = spec;
+        btn.onclick = () => showProductsTable(spec);
+        ratingContainer.appendChild(btn);
+      });
+
+      const ratingModal = new bootstrap.Modal(document.getElementById('ratingModal'));
+      ratingModal.show();
+    }
+
+    // Step 2: Render Product List Modal Table
+    async function showProductsTable(rating) {
+      currentRatingFilter = rating;
+
+      const ratingModalEl = document.getElementById('ratingModal');
+      const ratingModalInst = bootstrap.Modal.getInstance(ratingModalEl);
+      if (ratingModalInst) ratingModalInst.hide();
+
+      document.getElementById('products-modal-title').innerText = `${currentCategory} Catalog`;
+      
+      await renderFilterBadges();
+      await renderProductsTable();
+
+      const productsModal = new bootstrap.Modal(document.getElementById('productsModal'));
+      productsModal.show();
+    }
+
+    // Render All Available Rating Badges inside Modal Header
+    async function renderFilterBadges() {
+      const container = document.getElementById('filter-badges-container');
+      const catalog = await getCatalog();
+
+      const availableSpecs = [...new Set(
+        catalog
+          .filter(item => item.category === currentCategory)
+          .map(item => item.spec)
+      )];
+
+      let html = `<span class="text-secondary small me-1">Filter by:</span>`;
+
+      const isAllActive = currentRatingFilter === 'ALL';
+      html += `
+        <span class="badge ${isAllActive ? 'bg-info text-dark' : 'bg-outline-secondary border text-light'} filter-pill px-2 py-1" onclick="selectRatingFilter('ALL')">
+          All Models
+        </span>
+      `;
+
+      availableSpecs.forEach(spec => {
+        const isActive = currentRatingFilter === spec;
+        html += `
+          <span class="badge ${isActive ? 'bg-info text-dark' : 'bg-dark border border-secondary text-light'} filter-pill px-2 py-1" onclick="selectRatingFilter('${spec}')">
+            ${spec}
+          </span>
+        `;
+      });
+
+      if (currentRatingFilter !== 'ALL') {
+        html += `
+          <span class="badge bg-outline-danger border border-danger text-danger filter-pill px-2 py-1 ms-1" onclick="selectRatingFilter('ALL')">
+            Clear Filter ✕
+          </span>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Quick switch rating filter directly from badges inside modal
+    async function selectRatingFilter(spec) {
+      currentRatingFilter = spec;
+      await renderFilterBadges();
+      await renderProductsTable();
+    }
+
+    // Render Table Rows
+    async function renderProductsTable() {
+      const catalog = await getCatalog();
+      const search = document.getElementById('modal-search-input').value.toLowerCase();
+      const tbody = document.getElementById('products-tbody');
+      
+      tbody.innerHTML = '';
+
+      const filtered = catalog.filter(item => {
+        const matchesCat = item.category === currentCategory;
+        const matchesRating = currentRatingFilter === 'ALL' || item.spec === currentRatingFilter;
+        const matchesSearch = item.name.toLowerCase().includes(search) || 
+                              (item.model && item.model.toLowerCase().includes(search)) || 
+                              item.spec.toLowerCase().includes(search);
+        return matchesCat && matchesRating && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No matching models found.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="fw-semibold">${item.name}</td>
+          <td><span class="model-code">${item.model || 'N/A'}</span></td>
+          <td><span class="badge bg-secondary">${item.spec}</span></td>
+          <td style="text-align: right;">
+            <input type="number" class="form-control form-control-sm price-input d-inline-block" data-id="${item.id}" value="${item.price}">
+          </td>
+          <td class="text-center">
+            <button class="btn btn-outline-danger btn-sm" onclick="deleteProduct(${item.id})">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Handle inline price updates
+    document.getElementById('products-tbody').addEventListener('change', async (e) => {
+      if (e.target && e.target.classList.contains('price-input')) {
+        const id = parseInt(e.target.getAttribute('data-id'));
+        const newPrice = parseFloat(e.target.value) || 0;
+        
+        const catalog = await getCatalog();
+        const target = catalog.find(i => i.id === id);
+        if (target) {
+          target.price = newPrice;
+          saveCatalog(catalog);
+        }
+      }
+    });
+
+    // Delete item
+    async function deleteProduct(id) {
+      let catalog = await getCatalog();
+      catalog = catalog.filter(i => i.id !== id);
+      saveCatalog(catalog);
+      await renderFilterBadges();
+      await renderProductsTable();
+    }
+
+    // Open Add Product Form Modal
+    function openAddProductModal() {
+      document.getElementById('add-product-modal-title').innerText = `Add New ${currentCategory}`;
+      document.getElementById('add-spec-input').value = currentRatingFilter !== 'ALL' ? currentRatingFilter : '';
+      
+      const addModal = new bootstrap.Modal(document.getElementById('addProductModal'));
+      addModal.show();
+    }
+
+    // Handle Add Form Submission
+    document.getElementById('add-product-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('add-brand-input').value;
+      const model = document.getElementById('add-model-input').value;
+      const spec = document.getElementById('add-spec-input').value;
+      const price = parseFloat(document.getElementById('add-price-input').value) || 0;
+
+      const catalog = await getCatalog();
+      catalog.push({
+        id: Date.now(),
+        category: currentCategory,
+        name: name,
+        model: model,
+        spec: spec,
+        price: price
+      });
+
+      saveCatalog(catalog);
+
+      document.getElementById('add-product-form').reset();
+
+      const addModalEl = document.getElementById('addProductModal');
+      const addModalInst = bootstrap.Modal.getInstance(addModalEl);
+      if (addModalInst) addModalInst.hide();
+
+      await renderFilterBadges();
+      await renderProductsTable();
+    });
+
+    // Search bar listener
+    document.getElementById('modal-search-input').addEventListener('input', renderProductsTable);
+
+    // Reset default catalog button (Clears LocalStorage and re-fetches catalog.json)
+    document.getElementById('reset-default-btn').onclick = async () => {
+      if (confirm('Reset catalog back to factory defaults?')) {
+        localStorage.removeItem('solar_price_catalog');
+        await getCatalog();
+        location.reload();
+      }
+    };
+  </script>
+</body>
+</html>

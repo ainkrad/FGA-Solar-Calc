@@ -1,0 +1,249 @@
+/* ==========================================================
+   1. GLOBAL & NON-EDITABLE TEXT FIXES
+   ========================================================== */
+body, h1, h2, h3, h4, h5, h6, p, span, label, td, th, div, 
+.modal-title, .badge, .card-icon, .row-subtotal, .highlight-val {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  cursor: default;
+}
+
+/* Enable standard text cursor only on editable elements */
+input, 
+textarea, 
+[contenteditable="true"], 
+.price-input, 
+.param-input {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  cursor: text !important;
+}
+
+/* Enable pointer cursor for interactive elements */
+button, 
+a, 
+.btn, 
+.card-option, 
+.category-card, 
+.filter-pill, 
+.rating-btn, 
+.btn-close, 
+.nav-link {
+  cursor: pointer !important;
+}
+
+/* Base Body Layout */
+body {
+  background: #0f172a;
+  color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 3rem;
+}
+
+/* Custom contrast fix for footer text on dark backgrounds */
+.text-muted {
+  color: #94a3b8 !important; /* Soft slate gray with high contrast */
+}
+
+
+/* ==========================================================
+   2. ROOT / HUB LAYOUT (`index.html`)
+   ========================================================== */
+body.hub-body {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0;
+}
+
+.hub-container {
+  max-width: 900px;
+  width: 100%;
+  padding: 2rem;
+}
+
+.card-option {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s ease-in-out;
+}
+
+.card-option:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.btn-custom {
+  font-weight: 600;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+}
+
+
+/* ==========================================================
+   3. FORM CONTROLS & CALCULATOR COMPONENTS
+   ========================================================== */
+.form-control, .form-select {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #0f172a;
+  color: #f8fafc;
+  border-color: #38bdf8;
+  box-shadow: none;
+}
+
+.calc-card, .summary-card {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .calc-card, .summary-card {
+    padding: 2rem;
+  }
+}
+
+.nav-tabs .nav-link {
+  color: #94a3b8;
+  border: none;
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active {
+  background: #334155;
+  color: #38bdf8;
+  border-bottom: 2px solid #38bdf8;
+}
+
+.param-box {
+  background-color: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.param-input {
+  min-width: 80px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.row-subtotal {
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+
+/* ==========================================================
+   4. SUMMARY PAGE COMPONENTS (`summary.html`)
+   ========================================================== */
+.component-box {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1.25rem;
+  height: 100%;
+}
+
+.badge-pv {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+
+.badge-battery {
+  background-color: #16a34a;
+  color: #ffffff;
+}
+
+.badge-inverter {
+  background-color: #d97706;
+  color: #ffffff;
+}
+
+.highlight-val {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.spec-list li {
+  margin-bottom: 0.4rem;
+  color: #cbd5e1;
+}
+
+
+/* ==========================================================
+   5. CATALOG & PRICE LIST COMPONENTS (`pricelist/index.html`)
+   ========================================================== */
+.category-card {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: all 0.25s ease-in-out;
+  height: 100%;
+}
+
+.category-card:hover {
+  transform: translateY(-6px);
+  border-color: #38bdf8;
+  box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.25);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.price-input {
+  width: 110px;
+  text-align: right;
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.modal-content {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+
+.rating-btn {
+  min-width: 100px;
+  font-weight: 600;
+}
+
+.model-code {
+  font-family: monospace;
+  color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.filter-pill {
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-pill:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
