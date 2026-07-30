@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Three.js: World Effects</title>
+
+    <!-- 1. Unified 8th Wall Scripts (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" async crossorigin="anonymous" data-preload-chunks="slam"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@8thwall/landing-page@1/dist/landing-page.js" crossorigin="anonymous"></script>
+
+    <!-- Adjust CSS path if your CSS is in root (../src/index.css) or inside viz (./src/index.css) -->
+    <link rel="stylesheet" href="../src/index.css">
+
+    <style>
+      /* Ensure camera feed covers the screen */
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+      #camerafeed {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main AR Camera Canvas -->
+    <canvas id="camerafeed"></canvas>
+
+    <!-- Capture Button -->
+    <button id="capture-btn" class="ar-btn" style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 10;">
+      📷 Take Photo
+    </button>
+
+    <!-- Photo Preview Modal -->
+    <div id="preview-modal" class="modal hidden">
+      <div class="modal-content">
+        <span id="close-modal">&times;</span>
+        <h3>Your Snapshot</h3>
+        <img id="photo-preview" src="" alt="AR Snapshot" />
+        <a id="download-btn" href="#" download="ar-photo.png" class="ar-btn">Download Image</a>
+      </div>
+    </div>
+
+    <!-- Floating Back Button -->
+    <a href="../index.html" 
+      style="
+        position: absolute; 
+        top: 20px; 
+        left: 20px; 
+        z-index: 999; 
+        background: rgba(15, 23, 42, 0.8); 
+        color: #fff; 
+        padding: 8px 16px; 
+        border-radius: 8px; 
+        text-decoration: none; 
+        font-family: sans-serif; 
+        font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(4px);
+      ">
+      ← Back to Main Hub
+    </a>
+
+    <!-- 2. Fix JS path relative to the root project directory -->
+    <script type="module" src="../src/app.js"></script>
+  </body>
+</html>

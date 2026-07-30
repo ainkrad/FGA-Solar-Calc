@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Estimation Summary</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <style>
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      padding-bottom: 3rem;
+    }
+
+    .summary-card {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .summary-card {
+        padding: 2rem;
+      }
+    }
+
+    .component-box {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 1.25rem;
+      height: 100%;
+    }
+
+    .badge-pv {
+      background-color: #0284c7;
+      color: #ffffff;
+    }
+
+    .badge-battery {
+      background-color: #16a34a;
+      color: #ffffff;
+    }
+
+    .badge-inverter {
+      background-color: #d97706;
+      color: #ffffff;
+    }
+
+    .highlight-val {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .spec-list li {
+      margin-bottom: 0.4rem;
+      color: #cbd5e1;
+    }
+
+    /* Custom contrast fix for footer text on dark backgrounds */
+    .text-muted {
+    color: #94a3b8 !important; /* Soft slate gray with high contrast */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <a href="index.html" class="btn btn-outline-secondary btn-sm">
+        ← Edit Inputs
+      </a>
+      <a href="../index.html" class="btn btn-outline-light btn-sm">
+        🏠 Main Hub
+      </a>
+    </div>
+
+    <h1 class="h2 fw-bold">Solar Setup Sizing Summary</h1>
+    <p class="text-secondary mb-0">Based on your daily load profile of <strong id="head-daily-load" class="text-info">-- kWh/day</strong>.</p>
+  </div>
+
+  <div class="container">
+    <div class="summary-card shadow-lg">
+
+      <div class="row g-4">
+        
+        <!-- 1. SOLAR PANELS CARD -->
+        <div class="col-lg-4 col-md-6">
+          <div class="component-box d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-light">Solar Panels (PV)</h5>
+                <span class="badge badge-pv px-2 py-1 fs-7">Array Sizing</span>
+              </div>
+
+              <div class="mb-3">
+                <span class="text-secondary small d-block">Recommended Array Power:</span>
+                <span id="pv-total-kw" class="highlight-val">-- kW</span>
+              </div>
+
+              <ul class="list-unstyled spec-list small">
+                <li><strong>Panels Needed:</strong> <span id="pv-count" class="text-info fw-bold">--</span></li>
+                <li><strong>Panel Rating:</strong> <span id="pv-spec">--</span></li>
+                <div><strong>Sunlight Factor:</strong> <span id="pv-sunlight-factor-val">3 Peak Sun Hours/day</span></div>
+                <li><strong>Safety Allowance:</strong> <span id="pv-allowance-val">1.5x</span> cushion</li>
+              </ul>
+            </div>
+            
+            <div class="border-top border-secondary pt-2 mt-2 text-muted small">
+              Output capacity covers total daily usage plus battery charging losses.
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. BATTERY STORAGE CARD -->
+        <div class="col-lg-4 col-md-6">
+          <div class="component-box d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-light">Battery Bank</h5>
+                <span class="badge badge-battery px-2 py-1 fs-7">Storage</span>
+              </div>
+
+              <div class="mb-3">
+                <span class="text-secondary small d-block">Total Battery Energy:</span>
+                <span id="bat-total-kwh" class="highlight-val" style="color: #4ade80;">-- kWh</span>
+              </div>
+
+              <ul class="list-unstyled spec-list small">
+                <li><strong>Units Needed:</strong> <span id="bat-count" class="text-success fw-bold">--</span></li>
+                <li><strong>Pack Specs:</strong> <span id="bat-unit-spec">--</span></li>
+                <li><strong>System Voltage:</strong> <span id="bat-voltage">-- V</span></li>
+                <li><strong>Required Ah:</strong> <span id="bat-ah-needed">-- Ah</span> (incl. safety factor)</li>
+              </ul>
+            </div>
+
+            <div class="border-top border-secondary pt-2 mt-2 text-muted small">
+              Provides emergency backup and overnight power during zero sunlight hours.
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. INVERTER & CONTROLLER CARD -->
+        <div class="col-lg-4 col-md-12">
+          <div class="component-box d-flex flex-column justify-content-between">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0 text-light">Inverter & MPPT</h5>
+                <span class="badge badge-inverter px-2 py-1 fs-7">Power Hub</span>
+              </div>
+
+              <div class="mb-3">
+                <span class="text-secondary small d-block">Recommended Inverter Rating:</span>
+                <span id="inv-size-kw" class="highlight-val" style="color: #fbbf24;">-- kW</span>
+              </div>
+
+              <ul class="list-unstyled spec-list small">
+                <li><strong>Type:</strong> Hybrid Pure Sine Wave</li>
+                <li><strong>Peak Continuous Load:</strong> <span id="inv-peak-load">-- W</span></li>
+                <li><strong>MPPT Current Rating:</strong> <span id="mppt-amp-rating" class="text-warning fw-bold">-- A</span></li>
+                <li><strong>MPPT Configuration:</strong> <span id="mppt-config">--</span></li>
+              </ul>
+            </div>
+
+            <div class="border-top border-secondary pt-2 mt-2 text-muted small">
+              Converts battery/PV DC power into usable AC power for house loads.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Footer -->
+      <div class="d-flex flex-wrap gap-3 mt-4 pt-3 border-top border-secondary">
+        <button class="btn btn-primary fw-bold px-4" onclick="window.print()">
+          🖨️ Print Summary Report
+        </button>
+        <a href="../viz/index.html" class="btn btn-outline-info fw-bold px-4">
+          View System in 3D Viz
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Spreadsheet Calculation Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rawData = localStorage.getItem('solar_calc_data');
+            if (!rawData) {
+            alert('No calculation data found. Redirecting to parameter input page.');
+            window.location.href = 'index.html';
+            return;
+            }
+
+            const data = JSON.parse(rawData);
+            const dailyLoadWh = data.dailyLoadWh || 8000;
+            
+            const { sysVoltage, batteryAh, batterySf, panelW, pvAllowance, sunlightFactor } = data.sysParams;
+            const peakSunHours = sunlightFactor || 3;
+
+            // --- 1. DYNAMIC PEAK LOAD CALCULATION ---
+            let continuousLoadW = data.peakLoadW;
+            if (!continuousLoadW || continuousLoadW === 16200) {
+            continuousLoadW = Math.max(2000, Math.round((dailyLoadWh / 8) * 2.5));
+            }
+
+            // --- 2. BATTERY CALCULATION ---
+            const requiredAh = (dailyLoadWh / sysVoltage) * batterySf;
+            const rawBatteryPcs = requiredAh / batteryAh;
+            const recommendedBatteries = Math.max(1, Math.ceil(rawBatteryPcs));
+
+            const totalBatteryCapacityAh = recommendedBatteries * batteryAh;
+            const totalBatteryWh = totalBatteryCapacityAh * sysVoltage;
+
+            // --- 3. SOLAR PANEL (PV) CALCULATION (Sized to fill Battery Bank) ---
+            const requiredPvPowerPerHour = totalBatteryWh / peakSunHours;
+            const basePanels = requiredPvPowerPerHour / panelW;
+            const recommendedPanels = Math.ceil(basePanels * pvAllowance);
+            const totalPvKw = ((recommendedPanels * panelW) / 1000).toFixed(2);
+
+            // --- 4. INVERTER & MPPT CALCULATION ---
+            const requiredInverterKw = (continuousLoadW * 1.25) / 1000;
+            const standardInverterSizes = [3, 5, 6, 8, 10, 12, 15];
+            const recommendedInverterKw = standardInverterSizes.find(size => size >= requiredInverterKw) || Math.ceil(requiredInverterKw);
+
+            const requiredMpptAmps = Math.ceil((recommendedPanels * panelW) / sysVoltage);
+
+            // --- UPDATE UI ELEMENTS ---
+            document.getElementById('head-daily-load').innerText = `${(dailyLoadWh / 1000).toFixed(2)} kWh/day`;
+
+            // Solar Panel UI
+            document.getElementById('pv-total-kw').innerText = `${totalPvKw} kW`;
+            document.getElementById('pv-count').innerText = `${recommendedPanels} Panels`;
+            document.getElementById('pv-spec').innerText = `${panelW}W Monocrystalline`;
+            document.getElementById('pv-sunlight-factor-val').innerText = `${peakSunHours} Peak Sun Hours/day`;
+            document.getElementById('pv-allowance-val').innerText = `${pvAllowance}x`;
+
+            // Battery Storage UI
+            document.getElementById('bat-total-kwh').innerText = `${(totalBatteryWh / 1000).toFixed(1)} kWh`;
+            document.getElementById('bat-count').innerText = `${recommendedBatteries} Units`;
+            document.getElementById('bat-unit-spec').innerText = `${sysVoltage}V ${batteryAh}Ah LiFePO4`;
+            document.getElementById('bat-voltage').innerText = `${sysVoltage} V`;
+            document.getElementById('bat-ah-needed').innerText = `${requiredAh.toFixed(1)} Ah`;
+
+            // Inverter & MPPT UI
+            document.getElementById('inv-size-kw').innerText = `${recommendedInverterKw} kW`;
+            document.getElementById('inv-peak-load').innerText = `${(continuousLoadW / 1000).toFixed(1)} kW`;
+            document.getElementById('mppt-amp-rating').innerText = `${requiredMpptAmps} A`;
+            document.getElementById('mppt-config').innerText = requiredMpptAmps > 100 
+            ? `2x 60A MPPTs` 
+            : `1x ${requiredMpptAmps}A MPPT`;
+        });
+        </script>
+</body>
+</html>

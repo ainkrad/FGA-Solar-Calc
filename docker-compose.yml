@@ -3,7 +3,7 @@ version: '3.8'
 services:
   webar-app:
     build: .
-    container_name: ar-solar-webar
+    container_name: fga-solar-calc
     ports:
       - "5173:5173"
     volumes:
