@@ -1,39 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Three.js Global -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GLTFLoader Global -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <!-- 8th Wall Scripts -->
-    <script src="/external/xr/xr.js"></script>
-  
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     
     <title>FCG AR App</title>
 
-    <!-- 1. Unified 8th Wall Scripts (CDN) -->
-    <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" async crossorigin="anonymous" data-preload-chunks="slam"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@8thwall/landing-page@1/dist/landing-page.js" crossorigin="anonymous"></script>
+    <!-- 1. Three.js & GLTFLoader Globals -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-    <!-- Adjust CSS path if your CSS is in root (../src/index.css) or inside viz (./src/index.css) -->
+    <!-- 2. 8th Wall Engine Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" crossorigin="anonymous" data-preload-chunks="slam"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
+
+    <!-- Styling -->
     <link rel="stylesheet" href="../src/index.css">
 
     <style>
-      /* Ensure camera feed covers the screen */
       body, html {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
+        background-color: #000;
       }
       #camerafeed {
         width: 100vw;
         height: 100vh;
         display: block;
+      }
+      .modal.hidden {
+        display: none !important;
       }
     </style>
   </head>
@@ -76,7 +75,7 @@
       ← Back to Main Hub
     </a>
 
-    <!-- 2. Fix JS path relative to the root project directory -->
+    <!-- App Entry Point -->
     <script type="module" src="../src/app.js"></script>
   </body>
 </html>

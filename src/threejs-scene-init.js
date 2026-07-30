@@ -1,28 +1,24 @@
-
-// import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-
 export const initScenePipelineModule = () => {
-  // Grab window references safely inside the closure
+  // 1. Safely retrieve global Three.js references set by CDN scripts in index.html
   const THREE = window.THREE
-  // const GLTFLoader = window.GLTFLoader || THREE.GLTFLoader
-  
+  const GLTFLoaderClass = window.GLTFLoader || (THREE ? THREE.GLTFLoader : null)
+
   let takeSnapshot = false
   let snapshotCanvas = null
   let previewImg = null
   let modalOverlay = null
-  
+
   let currentScene = null
-  let activeCamera = null // Reference stored safely during setup
+  let activeCamera = null
   let currentModel = null
   let activeModelData = null
   let reticleMesh = null
-  
+
   // Surface scanning toggle state
   let isScanningActive = true
-  let lockedSurfacePoint = null // Stores last valid hit test pose when scanning turns OFF
+  let lockedSurfacePoint = null
 
-  // Touch gesture state for press-and-hold & pinch adjustments
+  // Touch gesture state
   let isTouchingModel = false
   let touchStartPos = { x: 0, y: 0 }
   let lastTouchTime = 0
@@ -33,8 +29,8 @@ export const initScenePipelineModule = () => {
   let initialPinchDistance = 0
   let initialModelScale = THREE ? new THREE.Vector3() : null
 
-  // Instantiate GLTFLoader safely
-  const gltfLoader = new GLTFLoader()
+  // 2. Instantiate GLTFLoader safely from global reference
+  const gltfLoader = GLTFLoaderClass ? new GLTFLoaderClass() : null
 
   const modelsList = [
     { name: 'Chair', url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/SheenChair/glTF-Binary/SheenChair.glb', scale: 1 },
