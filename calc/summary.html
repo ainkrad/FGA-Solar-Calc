@@ -131,73 +131,109 @@
   </div>
 
   <!-- Spreadsheet Calculation Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const rawData = localStorage.getItem('solar_calc_data');
-            if (!rawData) {
-            alert('No calculation data found. Redirecting to parameter input page.');
-            window.location.href = 'index.html';
-            return;
-            }
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rawData = localStorage.getItem('solar_calc_data');
+      if (!rawData) {
+        alert('No calculation data found. Redirecting to parameter input page.');
+        window.location.href = 'index.html';
+        return;
+      }
 
-            const data = JSON.parse(rawData);
-            const dailyLoadWh = data.dailyLoadWh || 8000;
-            
-            const { sysVoltage, batteryAh, batterySf, panelW, pvAllowance, sunlightFactor } = data.sysParams;
-            const peakSunHours = sunlightFactor || 3;
+      const data = JSON.parse(rawData);
+      const dailyLoadWh = data.dailyLoadWh || 0;
+      
+      const { 
+        sysVoltage = 51.2, 
+        batteryAh = 315, 
+        batterySf = 1.25, 
+        panelW = 600, 
+        pvAllowance = 1.5, 
+        sunlightFactor = 3 
+      } = data.sysParams || {};
 
-            // --- 1. DYNAMIC PEAK LOAD CALCULATION ---
-            let continuousLoadW = data.peakLoadW;
-            if (!continuousLoadW || continuousLoadW === 16200) {
-            continuousLoadW = Math.max(2000, Math.round((dailyLoadWh / 8) * 2.5));
-            }
+      const peakSunHours = sunlightFactor || 3;
 
-            // --- 2. BATTERY CALCULATION ---
-            const requiredAh = (dailyLoadWh / sysVoltage) * batterySf;
-            const rawBatteryPcs = requiredAh / batteryAh;
-            const recommendedBatteries = Math.max(1, Math.ceil(rawBatteryPcs));
+      // --- 1. DYNAMIC PEAK & THROUGHPUT LOAD CALCULATION ---
+      let continuousLoadW = parseFloat(data.peakLoadW) || 0;
+      
+      // If peak load wasn't provided directly (e.g., Fixed kW tab), estimate standard running power
+      if (continuousLoadW <= 0) {
+        continuousLoadW = Math.round((dailyLoadWh / 24) * 2.0); // 2x average hourly demand
+      }
 
-            const totalBatteryCapacityAh = recommendedBatteries * batteryAh;
-            const totalBatteryWh = totalBatteryCapacityAh * sysVoltage;
+      // --- 2. BATTERY CALCULATION ---
+      const requiredAh = (dailyLoadWh / sysVoltage) * batterySf;
+      const rawBatteryPcs = requiredAh / batteryAh;
+      const recommendedBatteries = Math.max(1, Math.ceil(rawBatteryPcs));
 
-            // --- 3. SOLAR PANEL (PV) CALCULATION (Sized to fill Battery Bank) ---
-            const requiredPvPowerPerHour = totalBatteryWh / peakSunHours;
-            const basePanels = requiredPvPowerPerHour / panelW;
-            const recommendedPanels = Math.ceil(basePanels * pvAllowance);
-            const totalPvKw = ((recommendedPanels * panelW) / 1000).toFixed(2);
+      const totalBatteryCapacityAh = recommendedBatteries * batteryAh;
+      const totalBatteryWh = totalBatteryCapacityAh * sysVoltage;
 
-            // --- 4. INVERTER & MPPT CALCULATION ---
-            const requiredInverterKw = (continuousLoadW * 1.25) / 1000;
-            const standardInverterSizes = [3, 5, 6, 8, 10, 12, 15];
-            const recommendedInverterKw = standardInverterSizes.find(size => size >= requiredInverterKw) || Math.ceil(requiredInverterKw);
+      // --- 3. SOLAR PANEL (PV) CALCULATION ---
+      const requiredPvPowerPerHour = totalBatteryWh / peakSunHours;
+      const basePanels = requiredPvPowerPerHour / panelW;
+      const recommendedPanels = Math.ceil(basePanels * pvAllowance);
+      const totalPvKw = ((recommendedPanels * panelW) / 1000).toFixed(2);
 
-            const requiredMpptAmps = Math.ceil((recommendedPanels * panelW) / sysVoltage);
+      // --- 4. INVERTER & MPPT CALCULATION ---
+      // Requirement A: Instantaneous peak load headroom (1.25x safety factor)
+      const loadBasedInverterMinW = continuousLoadW * 1.25;
 
-            // --- UPDATE UI ELEMENTS ---
-            document.getElementById('head-daily-load').innerText = `${(dailyLoadWh / 1000).toFixed(2)} kWh/day`;
+      // Requirement B: Energy throughput floor requirement (prevents undersizing huge daily kWh systems)
+      const throughputBasedInverterMinW = (dailyLoadWh / peakSunHours) * 0.8;
 
-            // Solar Panel UI
-            document.getElementById('pv-total-kw').innerText = `${totalPvKw} kW`;
-            document.getElementById('pv-count').innerText = `${recommendedPanels} Panels`;
-            document.getElementById('pv-spec').innerText = `${panelW}W Monocrystalline`;
-            document.getElementById('pv-sunlight-factor-val').innerText = `${peakSunHours} Peak Sun Hours/day`;
-            document.getElementById('pv-allowance-val').innerText = `${pvAllowance}x`;
+      // Take the higher power requirement
+      const requiredInverterWatts = Math.max(loadBasedInverterMinW, throughputBasedInverterMinW);
+      const requiredInverterKw = requiredInverterWatts / 1000;
 
-            // Battery Storage UI
-            document.getElementById('bat-total-kwh').innerText = `${(totalBatteryWh / 1000).toFixed(1)} kWh`;
-            document.getElementById('bat-count').innerText = `${recommendedBatteries} Units`;
-            document.getElementById('bat-unit-spec').innerText = `${sysVoltage}V ${batteryAh}Ah LiFePO4`;
-            document.getElementById('bat-voltage').innerText = `${sysVoltage} V`;
-            document.getElementById('bat-ah-needed').innerText = `${requiredAh.toFixed(1)} Ah`;
+      // Commercial Hybrid Inverter Standard Capacities (kW)
+      const standardInverterSizes = [3, 5, 6, 8, 10, 12, 15, 20, 25, 30];
+      const recommendedInverterKw = standardInverterSizes.find(size => size >= requiredInverterKw) || Math.ceil(requiredInverterKw);
 
-            // Inverter & MPPT UI
-            document.getElementById('inv-size-kw').innerText = `${recommendedInverterKw} kW`;
-            document.getElementById('inv-peak-load').innerText = `${(continuousLoadW / 1000).toFixed(1)} kW`;
-            document.getElementById('mppt-amp-rating').innerText = `${requiredMpptAmps} A`;
-            document.getElementById('mppt-config').innerText = requiredMpptAmps > 100 
-            ? `2x 60A MPPTs` 
-            : `1x ${requiredMpptAmps}A MPPT`;
-        });
-        </script>
+      // MPPT Charging Requirements
+      const totalArrayWatts = recommendedPanels * panelW;
+      const requiredMpptAmps = Math.ceil(totalArrayWatts / sysVoltage);
+
+      // MPPT Tracker Configuration Logic
+      let mpptConfigStr = '';
+      if (requiredMpptAmps <= 80) {
+        mpptConfigStr = `1x ${requiredMpptAmps}A MPPT`;
+      } else if (requiredMpptAmps <= 120) {
+        mpptConfigStr = `1x 120A MPPT or 2x 60A MPPTs`;
+      } else if (requiredMpptAmps <= 160) {
+        mpptConfigStr = `2x 80A MPPTs`;
+      } else {
+        const parallelTrackers = Math.ceil(requiredMpptAmps / 100);
+        const ampsPerTracker = Math.ceil(requiredMpptAmps / parallelTrackers);
+        mpptConfigStr = `${parallelTrackers}x ${ampsPerTracker}A MPPTs`;
+      }
+
+      // --- UPDATE UI ELEMENTS ---
+      document.getElementById('head-daily-load').innerText = `${(dailyLoadWh / 1000).toFixed(2)} kWh/day`;
+
+      // Solar Panel UI
+      document.getElementById('pv-total-kw').innerText = `${totalPvKw} kW`;
+      document.getElementById('pv-count').innerText = `${recommendedPanels} Panels`;
+      document.getElementById('pv-spec').innerText = `${panelW}W Monocrystalline`;
+      document.getElementById('pv-sunlight-factor-val').innerText = `${peakSunHours} Peak Sun Hours/day`;
+      document.getElementById('pv-allowance-val').innerText = `${pvAllowance}x`;
+
+      // Battery Storage UI
+      document.getElementById('bat-total-kwh').innerText = `${(totalBatteryWh / 1000).toFixed(1)} kWh`;
+      document.getElementById('bat-count').innerText = `${recommendedBatteries} Units`;
+      document.getElementById('bat-unit-spec').innerText = `${sysVoltage}V ${batteryAh}Ah LiFePO4`;
+      document.getElementById('bat-voltage').innerText = `${sysVoltage} V`;
+      document.getElementById('bat-ah-needed').innerText = `${requiredAh.toFixed(1)} Ah`;
+
+      // Inverter & MPPT UI
+      document.getElementById('inv-size-kw').innerText = `${recommendedInverterKw} kW`;
+      document.getElementById('inv-peak-load').innerText = continuousLoadW >= 1000 
+        ? `${(continuousLoadW / 1000).toFixed(1)} kW` 
+        : `${Math.round(continuousLoadW)} W`;
+      document.getElementById('mppt-amp-rating').innerText = `${requiredMpptAmps} A`;
+      document.getElementById('mppt-config').innerText = mpptConfigStr;
+    });
+  </script>
 </body>
 </html>

@@ -536,10 +536,13 @@
 
           peakAmpsInput.classList.remove('is-invalid');
 
-          peakLoadW = amps * volts * pf;
-          const baseDailyWh = peakLoadW * hours;
-          const installerBuffer = 1.25;
-          dailyLoadWh = baseDailyWh * installerBuffer;
+          // 1. Apparent Power (VA) used for Inverter Headroom & Sizing
+          const apparentPowerVA = amps * volts; 
+          peakLoadW = apparentPowerVA; // Store VA in peakLoadW for sizing logic
+
+          // 2. Real Power (Watts) used for Daily Battery Energy Consumption
+          const realPowerW = apparentPowerVA * pf;
+          dailyLoadWh = realPowerW * hours;
 
         } else if (activeTab === 'table-tab') {
           const rows = document.querySelectorAll('#appliance-table tbody tr');
