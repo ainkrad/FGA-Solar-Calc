@@ -13,4 +13,9 @@ export default defineConfig({
       usePolling: true // Keeps hot reload active across Docker volumes
     }
   }
+  // build: {
+  //   rollupOptions: {
+  //     external: ['three'],
+  //   },
+  // },
 });

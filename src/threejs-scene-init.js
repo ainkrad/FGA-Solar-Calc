@@ -1,8 +1,11 @@
-// Remove top-level const THREE / GLTFLoader calls to avoid execution order crashes
+
+// import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 export const initScenePipelineModule = () => {
   // Grab window references safely inside the closure
   const THREE = window.THREE
+  // const GLTFLoader = window.GLTFLoader || THREE.GLTFLoader
   
   let takeSnapshot = false
   let snapshotCanvas = null
@@ -31,8 +34,7 @@ export const initScenePipelineModule = () => {
   let initialModelScale = THREE ? new THREE.Vector3() : null
 
   // Instantiate GLTFLoader safely
-  const GLTFLoaderClass = THREE?.GLTFLoader || window.GLTFLoader
-  const gltfLoader = GLTFLoaderClass ? new GLTFLoaderClass() : null
+  const gltfLoader = new GLTFLoader()
 
   const modelsList = [
     { name: 'Chair', url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/main/2.0/SheenChair/glTF-Binary/SheenChair.glb', scale: 1 },
